@@ -35,5 +35,15 @@ def seq_count(seq):
 
 
 def seq_reverse(seq, n):
-    return "hhhhh"
+    seq = seq[:n]
+    return seq[::-1]
 
+
+def seq_complement(seq):
+    complements = {"A": "T", "C": "G", "T": "A", "G": "C"}
+    complement_seq = ""
+
+    for i in seq:
+        complement_seq += complements[i]
+
+    return complement_seq
