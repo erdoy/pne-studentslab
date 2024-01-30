@@ -10,11 +10,11 @@ def seq_read_fasta(filename):
     return file_contents[file_contents.find("\n"):].replace("\n", "")
 
 
-def seq_len(seq):
+def seq_len(seq=None):
     return len(seq)
 
 
-def seq_count_base(seq, base):
+def seq_count_base(seq, base=None):
     count = 0
 
     for i in seq:
