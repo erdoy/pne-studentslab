@@ -1,0 +1,1 @@
+The bug is taking place when c and d paramenters are equal. This is because the g(a,b) function returns a-b and the variable t3 cointains sth/g(c,d), which returns a ZeroDivisionError when c and d are equal

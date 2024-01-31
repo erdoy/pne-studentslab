@@ -1,0 +1,3 @@
+Machine,           Interface,       Date,       Place,      IP
+mobile             Wifi             31/01/24    L3208       10.1.151.86
+Lab computer       Wire             31/01/24    L3208

@@ -1,0 +1,8 @@
+Destination IP       Name (if known)         Time
+212.128.255.68       Self                    0.06ms
+10.1.151.86          mobile                  47.5ms
+8.8.8.8              Google                  4.7ms
+212.128.240.50       www.urjc.es             3.74ms
+140.82.121.4         github.com              37ms
+185.15.58.224        wikipedia.org           19.2ms
+203.209.197.14       newdomain.com.au        
