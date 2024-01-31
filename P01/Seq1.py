@@ -8,12 +8,15 @@ class Seq:
         self.valid = False
         self.bases = ["A", "C", "T", "G"]
 
-        self.validate()
-
-        if not self.valid:
-            print("INVALID Seq!")
+        if self.strbases == "" or self.strbases == "NULL":
+            print("NULL Seq created")
         else:
-            print("New sequence created!")
+            self.validate()
+
+            if not self.valid:
+                print("INVALID Seq!")
+            else:
+                print("New sequence created!")
 
     def __str__(self):
         """Method called when the object is being printed"""
@@ -23,16 +26,13 @@ class Seq:
 
     def validate(self):
 
-        if self.strbases == "" or self.strbases == "NULL":
-            print("NULL Seq created")
-        else:
-            self.valid = True
+        self.valid = True
 
-            for i in self.strbases:
-                if i not in self.bases:
-                    self.valid = False
-                    self.strbases = "ERROR"
-                    break
+        for i in self.strbases:
+            if i not in self.bases:
+                self.valid = False
+                self.strbases = "ERROR"
+                break
 
     def read_fasta(self, filename):
         from pathlib import Path
