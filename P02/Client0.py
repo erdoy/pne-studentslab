@@ -1,5 +1,5 @@
 import socket
-
+from termcolor import cprint
 
 class Client:
     def __init__(self, IP, Port:int):
