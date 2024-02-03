@@ -2,3 +2,4 @@ Machine,           Interface,       Date,       Place,      IP
 Mobile             Wifi             31/01/24    L3208       10.1.151.86
 Lab computer       Wire             31/01/24    L3208       212.128.255.68
 Lab computer       Wire             02/02/24    L3207       212.128.255.26
+Home computer      Wifi             03/02/24    Undisclosed 81.34.46.31

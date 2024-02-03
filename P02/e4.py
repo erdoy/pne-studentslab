@@ -3,10 +3,15 @@ from Client0 import Client
 from termcolor import cprint
 import socket
 
-FOLDER = "/home/alumnos/edgamen/Escritorio/PNE/sequences/"
+import requests
+url = 'https://raw.githubusercontent.com/...'
+page = requests.get(url)
+print page.text
+
+FOLDER = ""
 FILENAMES = ["U5", "FRAT1", "ADA"]
 
-c = Client("212.128.255.26", 8081)
+c = Client("81.34.46.31", 8081)
 print(c)
 s = Seq()
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
