@@ -1,8 +1,9 @@
 import socket
+from termcolor import cprint
 
 # Configure the Server's IP and PORT
 PORT = 8081
-IP = "81.34.46.31"# it depends on the machine the server is running
+IP = "0.0.0.0"  # it depends on the machine the server is running
 MAX_OPEN_REQUESTS = 5
 
 # Counting the number of connections
@@ -29,7 +30,7 @@ try:
 
         # Read the message from the client, if any
         msg = clientsocket.recv(2048).decode("utf-8")
-        print("Message from client: {}".format(msg))
+        cprint("Message from client: {}".format(msg), "green", force_color=True)
 
         # Send the message
         message = "Hello from the teacher's server\n"
