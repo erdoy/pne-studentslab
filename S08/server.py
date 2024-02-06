@@ -3,7 +3,7 @@ from termcolor import cprint
 
 # Configure the Server's IP and PORT
 PORT = 8081
-IP = "0.0.0.0"  # it depends on the machine the server is running
+IP = "212.128.255.68"  # it depends on the machine the server is running
 MAX_OPEN_REQUESTS = 5
 
 # Counting the number of connections
