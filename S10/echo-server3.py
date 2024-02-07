@@ -47,8 +47,6 @@ while nclient < 5:
 
         print(f"CONNECTION {nclient}. Client IP, PORT: ('{client_ip_port[0]}', {client_ip_port[1]})")
 
-        print("A client has connected to the server!")
-
         # -- Read the message from the client
         # -- The received message is in raw bytes
         msg_raw = cs.recv(2048)
@@ -73,5 +71,6 @@ while nclient < 5:
 # -- Close the listening socket
 ls.close()
 
+print("The following clients have connected to the server: ")
 for i in range(len(client_list)):
     print(f"Client {i}: ({client_list[i][0]}, {client_list[i][1]})")
