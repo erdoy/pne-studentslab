@@ -2,6 +2,8 @@ from Seq1 import Seq
 from termcolor import cprint
 import socket
 
+seq_list = ["A", "C", "G", "T", "AC"]
+
 IP = "127.0.0.1"
 PORT = 8080
 
@@ -31,13 +33,19 @@ while True:
         msg_raw = cs.recv(2048)
         msg = msg_raw.decode()
 
-
-
         if msg == "PING":
             response = "OK!\n"
             cs.send(response.encode())
 
             cprint("PING command!", "green", force_color=True)
+            print(response)
+
+        elif msg.startswith("GET ") and msg[4:].isdigit():
+            s = Seq(seq_list[int(msg[4:])])
+            response = str(s) + "\n"
+            cs.send(response.encode())
+
+            cprint("GET", "green", force_color=True)
             print(response)
 
         cs.close()
