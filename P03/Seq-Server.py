@@ -41,8 +41,16 @@ while True:
             print(response)
 
         elif msg.startswith("GET ") and msg[4:].isdigit():
-            s = Seq(seq_list[int(msg[4:])])
-            response = str(s) + "\n"
+            server_seq = Seq(seq_list[int(msg[4:])])
+            response = str(server_seq) + "\n"
+            cs.send(response.encode())
+
+            cprint("GET", "green", force_color=True)
+            print(response)
+
+        elif msg.startswith("INFO ") and msg[4:].isdigit():
+            server_seq = Seq(seq_list[int(msg[4:])])
+            response = str(server_seq) + "\n"
             cs.send(response.encode())
 
             cprint("GET", "green", force_color=True)
