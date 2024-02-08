@@ -26,6 +26,7 @@ class Seq:
 
     def validate(self):
 
+        self.strbases = self.strbases.replace("\n","")
         self.valid = True
 
         for i in self.strbases:

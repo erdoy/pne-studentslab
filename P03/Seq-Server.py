@@ -48,12 +48,22 @@ while True:
             cprint("GET", "green", force_color=True)
             print(response)
 
-        elif msg.startswith("INFO ") and msg[4:].isdigit():
-            server_seq = Seq(seq_list[int(msg[4:])])
-            response = str(server_seq) + "\n"
-            cs.send(response.encode())
+        elif msg.startswith("INFO "):
+            cprint("INFO", "green", force_color=True)
 
-            cprint("GET", "green", force_color=True)
+            server_seq = Seq(msg[5:])
+            response = str(server_seq)
+
+            if server_seq.valid:
+                response = (f"Sequence: {str(server_seq)}\n"
+                            f"Total length: {server_seq.len()}\n")
+
+                count = server_seq.count()
+                for i in count:
+                    response += f"{i}: {count[i]} ({round(count[i]/sum(count.values())*100,1)}%)\n"
+
+                cs.send(response.encode())
+
             print(response)
 
         cs.close()
