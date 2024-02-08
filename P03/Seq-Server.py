@@ -3,6 +3,8 @@ from termcolor import cprint
 import socket
 
 seq_list = ["A", "C", "G", "T", "AC"]
+FILENAMES = ["U5", "ADA", "FRAT1", "FXN", "RNU6_269P"]
+FOLDER = "../S04/sequences/"
 
 IP = "127.0.0.1"
 PORT = 8080
@@ -34,25 +36,30 @@ while True:
         msg = msg_raw.decode()
 
         if msg == "PING":
-            response = "OK!\n"
-            cs.send(response.encode())
-
             cprint("PING command!", "green", force_color=True)
+            response = "OK!\n"
+
+            cs.send(response.encode())
             print(response)
 
-        elif msg.startswith("GET ") and msg[4:].isdigit():
-            server_seq = Seq(seq_list[int(msg[4:])])
-            response = str(server_seq) + "\n"
-            cs.send(response.encode())
-
+        elif msg.startswith("GET "):
             cprint("GET", "green", force_color=True)
+            response = "Invalid order after 'GET '\n"
+
+            if msg[4:].isdigit():
+                response = "Invalid number\n"
+                if int(msg[4:]) < len(seq_list):
+                    server_seq = Seq(seq_list[int(msg[4:])])
+                    response = str(server_seq) + "\n"
+
+            cs.send(response.encode())
             print(response)
 
         elif msg.startswith("INFO "):
             cprint("INFO", "green", force_color=True)
 
             server_seq = Seq(msg[5:])
-            response = str(server_seq)
+            response = str(server_seq) + "\n"
 
             if server_seq.valid:
                 response = (f"Sequence: {str(server_seq)}\n"
@@ -62,8 +69,44 @@ while True:
                 for i in count:
                     response += f"{i}: {count[i]} ({round(count[i]/sum(count.values())*100,1)}%)\n"
 
-                cs.send(response.encode())
+            cs.send(response.encode())
+            print(response)
 
+        elif msg.startswith("COMP "):
+            cprint("COMP", "green", force_color=True)
+
+            server_seq = Seq(msg[5:])
+            response = str(server_seq) + "\n"
+
+            if server_seq.valid:
+                response = server_seq.complement() + "\n"
+
+            cs.send(response.encode())
+            print(response)
+
+        elif msg.startswith("REV "):
+            cprint("REV", "green", force_color=True)
+
+            server_seq = Seq(msg[4:])
+            response = str(server_seq) + "\n"
+
+            if server_seq.valid:
+                response = server_seq.reverse() + "\n"
+
+            cs.send(response.encode())
+            print(response)
+
+        elif msg.startswith("GENE "):
+            cprint("GENE", "green", force_color=True)
+
+            response = f"No gene in directory named {msg[5:]}\n"
+
+            if msg[5:] in FILENAMES:
+                server_seq = Seq()
+                server_seq.read_fasta(FOLDER + msg[5:] + ".txt")
+                response = str(server_seq) + "\n"
+
+            cs.send(response.encode())
             print(response)
 
         cs.close()

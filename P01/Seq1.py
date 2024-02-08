@@ -26,7 +26,7 @@ class Seq:
 
     def validate(self):
 
-        self.strbases = self.strbases.replace("\n","")
+        self.strbases = self.strbases.replace("\n", "").upper()
         self.valid = True
 
         for i in self.strbases:
@@ -80,7 +80,7 @@ class Seq:
 
     def complement(self):
         comp = self.strbases
-        comp_bases = {"A":"T", "C":"G", "G":"C", "T":"A"}
+        comp_bases = {"A": "T", "C": "G", "G": "C", "T": "A"}
 
         if self.valid:
             comp = ""
