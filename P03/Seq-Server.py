@@ -2,7 +2,7 @@ from Seq1 import Seq
 from termcolor import cprint
 import socket
 
-seq_list = ["A", "C", "G", "T", "AC"]
+seq_list = ["ACTGGGTACCATGACTAAGTCCAATGCATGCA", "C", "G", "T", "AC"]
 FILENAMES = ["U5", "ADA", "FRAT1", "FXN", "RNU6_269P"]
 FOLDER = "../S04/sequences/"
 
