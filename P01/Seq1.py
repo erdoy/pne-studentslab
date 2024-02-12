@@ -24,6 +24,9 @@ class Seq:
         # -- We just return the string with the sequence
         return self.strbases
 
+    def __bool__(self):
+        return self.valid
+
     def validate(self):
 
         self.strbases = self.strbases.replace("\n", "").upper()
