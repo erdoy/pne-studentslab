@@ -37,6 +37,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         if self.requestline.startswith("GET /ping?"):
             contents = Path("html/ping.html").read_text()
+        elif self.requestline.startswith("GET /"):
+            print(self.requestline)
 
 
         # if self.requestline.startswith("GET /echo?msg="):
