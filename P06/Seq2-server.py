@@ -35,10 +35,15 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         contents = Path("html/index.html").read_text()
 
-        if self.requestline.startswith("GET /ping?"):
-            contents = Path("html/ping.html").read_text()
-        elif self.requestline.startswith("GET /"):
-            print(self.requestline)
+        command = self.requestline.split(" ")[1]
+
+        if self.requestline.startswith("GET /"):
+            if command.startswith("/ping?"):
+                contents = Path("html/ping.html").read_text()
+            elif command.startswith("/get?seq="):
+                seq = int(command.split("=")[1])
+                seq = ["ADA", "FRAT1", "FXN", "RNU6_269P", "U5"][seq]
+                contents = Path("html/ping.html").read_text().format(Path("../sequences/" + seq + ".txt").read_text().replace("\n",""))
 
 
         # if self.requestline.startswith("GET /echo?msg="):
