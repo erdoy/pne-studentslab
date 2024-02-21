@@ -70,14 +70,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 result = None
                 if op == "rev":
                     result = s.reverse()
-                elif op == "comp":
+                elif op == "com":
                     print("hi")
                     result = s.complement()
-                elif op == "info":
+                elif op == "inf":
                     result = ""
-                    result += "Total length: " + str(s.len()) + "\n"
+                    result += "Total length: " + str(s.len()) + "<br><br>"
+                    count = s.count()
+                    for i in count:
+                        result += i + ": (" + str(count[i]) + str(
+                            round(count[i] / sum([count[j] for j in count]), 1)) + "%)" + "<br>"
                 contents = Path("html/operation.html").read_text().format(str(s), op, result)
-
 
         # if self.requestline.startswith("GET /echo?msg="):
         #     msg = self.requestline.strip("GET /echo?msg=").strip(" HTTP/1.1")
