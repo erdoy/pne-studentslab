@@ -2,6 +2,7 @@ import http.server
 import socketserver
 import termcolor
 from pathlib import Path
+from Seq1 import Seq
 
 # Define the Server's port
 PORT = 8080
@@ -17,7 +18,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         """This method is called whenever the client invokes the GET method
         in the HTTP protocol request"""
 
-        termcolor.cprint(self.requestline, 'green', force_color=True)
+        termcolor.cprint(self.requestline, 'green')
 
         # from urllib.parse import parse_qs, urlparse
         # url_path = urlparse(self.path)
@@ -33,17 +34,49 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # contents = read_html_file("form-e2.html").render(
         #     context={"todisplay": "icgygc"})  # provide a dictionary to build the form
 
-        contents = Path("html/index.html").read_text()
+        contents = Path("html/error.html").read_text()
+
+        filenames = ["ADA", "FRAT1", "FXN", "RNU6_269P", "U5"]
 
         command = self.requestline.split(" ")[1]
 
-        if self.requestline.startswith("GET /"):
-            if command.startswith("/ping?"):
-                contents = Path("html/ping.html").read_text()
-            elif command.startswith("/get?seq="):
-                seq = int(command.split("=")[1])
-                seq = ["ADA", "FRAT1", "FXN", "RNU6_269P", "U5"][seq]
-                contents = Path("html/ping.html").read_text().format(Path("../sequences/" + seq + ".txt").read_text().replace("\n",""))
+        if command == "/" or command == "/index" or command == "/index.html":
+            contents = Path("html/index.html").read_text()
+
+        elif command == "/ping?":
+            contents = Path("html/ping.html").read_text()
+
+        elif command.startswith("/get?seq=") and command.strip("/get?seq=").isdigit():
+            nseq = int(command.split("=")[1])
+            seq = filenames[nseq]
+            s = Seq()
+            s.read_fasta("../sequences/" + seq + ".txt")
+            contents = Path("html/get.html").read_text().format(nseq, s)
+
+        elif command.startswith("/gene?name="):
+            filename = command.strip("/gene?name=")
+            if filename in filenames:
+                s = Seq()
+                s.read_fasta("../sequences/" + filename + ".txt")
+                contents = Path("html/gene.html").read_text().format(filename, s)
+
+        elif command.startswith("/operation?seq="):
+            ops = command.strip("/operation?").split("&")
+            s = Seq()
+            s.strbases = ops[0].strip("seq=")
+            s.validate()
+            if s.valid:
+                op = ops[1].strip("op=")
+                result = None
+                if op == "rev":
+                    result = s.reverse()
+                elif op == "comp":
+                    print("hi")
+                    result = s.complement()
+                elif op == "info":
+                    result = ""
+                    result += "Total length: " + str(s.len()) + "\n"
+                contents = Path("html/operation.html").read_text().format(str(s), op, result)
 
 
         # if self.requestline.startswith("GET /echo?msg="):
