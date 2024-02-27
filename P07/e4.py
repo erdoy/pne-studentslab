@@ -1,3 +1,4 @@
+from Seq1 import Seq
 import http.client
 import json
 from termcolor import cprint
@@ -13,7 +14,7 @@ genes = {"FRAT1": "ENSG00000165879",
          "KDR": "ENSG00000128052",
          "ANK2": "ENSG00000145362"}
 
-gene = "MIR633"
+gene = input("\nWrite the gene name: ").upper().strip()
 ID = genes[gene]
 
 SERVER = 'rest.ensembl.org'
@@ -46,5 +47,15 @@ cprint("Gene", color="green", end="")
 print(": " + gene)
 cprint("Description", color="green", end="")
 print(": " + response["desc"])
-cprint("Bases", color="green", end="")
-print(": " + response["seq"])
+
+s = Seq(response["seq"])
+cprint("Total length", color="green", end="")
+print(": " + str(s.len()))
+
+count = s.count()
+for base in count:
+    cprint(base, color="blue", end="")
+    print(f": {count[base]} ({round(100 * count[base] / sum(count.values()), 1)}%)")
+
+cprint("Most frequent Base", color="green", end="")
+print(": " + max(count, key=count.get))
