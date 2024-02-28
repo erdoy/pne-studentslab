@@ -1,5 +1,7 @@
 import http.server
 import socketserver
+from pprint import pprint
+
 import termcolor
 import http.client
 import json
@@ -39,6 +41,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         elif resource == "/list":
 
             ENDPOINT = '/info/species'
+            msg = list_resource[1].strip("msg=")
 
             conn = http.client.HTTPConnection(SERVER)
 
@@ -52,13 +55,29 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             print(f"Response received!: {r1.status} {r1.reason}\n")
             response = json.loads(r1.read().decode("utf-8"))
 
-            print(response["species"][:2])
+            pprint([i["display_name"] for i in response["species"][:2]])
+            pprint(response["species"][:2])
 
-            contents = Path('html/list.html').read_text().format(response["species"][:1])
-            content_type = 'text/html'
-            error_code = 200
+            lim_species = len(response["species"])
+            if msg.isdigit():
+                lim = int(msg)
+
+                species = ""
+
+                for i in response["species"][:lim]:
+                    species += f"<li>{i['display_name']}</li>"
+
+                contents = Path('html/list.html').read_text().format(lim_species, lim, species)
+                content_type = 'text/html'
+                error_code = 200
+            else:
+                contents = Path('html/error.html').read_text()
+                content_type = 'text/html'
+                error_code = 404
+
+
         else:
-            contents = Path('Error.html').read_text()
+            contents = Path('html/error.html').read_text()
             content_type = 'text/html'
             error_code = 404
 
