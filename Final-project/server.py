@@ -55,12 +55,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             print(f"Response received!: {r1.status} {r1.reason}\n")
             response = json.loads(r1.read().decode("utf-8"))
 
-            pprint([i["display_name"] for i in response["species"][:2]])
-            pprint(response["species"][:2])
-
             lim_species = len(response["species"])
             if msg.isdigit():
                 lim = int(msg)
+                if lim > lim_species:
+                    lim = lim_species
 
                 species = ""
 
