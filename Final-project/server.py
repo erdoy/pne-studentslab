@@ -12,7 +12,6 @@ PORT = 8080
 SERVER = 'rest.ensembl.org'
 PARAMS = "?content-type=application/json"
 
-
 # -- This is for preventing the error: "Port already in use"
 socketserver.TCPServer.allow_reuse_address = True
 
@@ -55,6 +54,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             print(f"Response received!: {r1.status} {r1.reason}\n")
             response = json.loads(r1.read().decode("utf-8"))
 
+            pprint(response["species"])
+
             lim_species = len(response["species"])
             if msg.isdigit():
                 lim = int(msg)
@@ -74,6 +75,33 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 content_type = 'text/html'
                 error_code = 404
 
+        elif resource == "/karyotype":
+
+            ENDPOINT = '/info/assembly/'
+            msg = list_resource[1].replace("msg=", "")
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + msg + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+            response = json.loads(r1.read().decode("utf-8"))
+
+            pprint(response["karyotype"])
+
+            chromosomes = ""
+
+            for i in response["karyotype"]:
+                chromosomes += f"<li>{i}</li>"
+
+            contents = Path('html/karyotype.html').read_text().format(chromosomes)
+            content_type = 'text/html'
+            error_code = 200
 
         else:
             contents = Path('html/error.html').read_text()
