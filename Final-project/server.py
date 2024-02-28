@@ -33,14 +33,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         print("Resource: ", resource)
         print("List Resource: ", list_resource)
 
-        if resource == "/":
+        if resource == "/" or resource == "/index" or resource == "/index.html":
             contents = Path('html/index.html').read_text()
             content_type = 'text/html'
             error_code = 200
-        elif resource == "/list":
+        elif resource == "/listSpecies":
 
             ENDPOINT = '/info/species'
-            msg = list_resource[1].strip("msg=")
+
+            if len(list_resource) >= 2:
+                msg = list_resource[1].strip("limit=")
+            else:
+                msg = ""
 
             conn = http.client.HTTPConnection(SERVER)
 
@@ -54,9 +58,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             print(f"Response received!: {r1.status} {r1.reason}\n")
             response = json.loads(r1.read().decode("utf-8"))
 
-            pprint(response["species"])
+            # pprint(response["species"])
 
             lim_species = len(response["species"])
+            print("Msg: " + msg)
+
+            if msg == "":
+                msg = str(lim_species)
+
             if msg.isdigit():
                 lim = int(msg)
                 if lim > lim_species:
@@ -70,6 +79,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path('html/list.html').read_text().format(lim_species, lim, species)
                 content_type = 'text/html'
                 error_code = 200
+
             else:
                 contents = Path('html/error.html').read_text()
                 content_type = 'text/html'
@@ -100,6 +110,34 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 chromosomes += f"<li>{i}</li>"
 
             contents = Path('html/karyotype.html').read_text().format(chromosomes)
+            content_type = 'text/html'
+            error_code = 200
+
+        elif resource == "/chromosome":
+
+            ENDPOINT = '/info/assembly/'
+            msgs = [i.replace("msg=", "") for i in list_resource[1].split("&")]
+            print(msgs)
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + msgs[0] + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+            response = json.loads(r1.read().decode("utf-8"))
+
+            length = None
+
+            for i in response["top_level_region"]:
+                if i["name"].lower() == msgs[1].lower():
+                    length = i["length"]
+
+            contents = Path('html/chromosome.html').read_text().format(length)
             content_type = 'text/html'
             error_code = 200
 
