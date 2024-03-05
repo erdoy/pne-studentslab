@@ -56,7 +56,7 @@ while True:
             print(response)
 
         elif msg.startswith("INFO "):
-            cprint("INFO", "green", force_color=True)
+            cprint("INFO", "green")
 
             server_seq = Seq(msg[5:])
             response = str(server_seq) + "\n"
@@ -73,7 +73,7 @@ while True:
             print(response)
 
         elif msg.startswith("COMP "):
-            cprint("COMP", "green", force_color=True)
+            cprint("COMP", "green")
 
             server_seq = Seq(msg[5:])
             response = str(server_seq) + "\n"
@@ -85,7 +85,7 @@ while True:
             print(response)
 
         elif msg.startswith("REV "):
-            cprint("REV", "green", force_color=True)
+            cprint("REV", "green")
 
             server_seq = Seq(msg[4:])
             response = str(server_seq) + "\n"
@@ -97,7 +97,7 @@ while True:
             print(response)
 
         elif msg.startswith("GENE "):
-            cprint("GENE", "green", force_color=True)
+            cprint("GENE", "green")
 
             response = f"No gene in directory named {msg[5:]}\n"
 

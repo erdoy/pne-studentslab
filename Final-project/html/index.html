@@ -18,16 +18,48 @@
 <hr>
 <p>2) Information about the karyotype</p>
 <form action="karyotype" method="get">
-    Select the species: <input type="text" name="msg">
+    Select the species: <input type="text" name="specie">
     <br><br>
     <input type="submit" value="Send"/>
 </form>
 <hr>
 <p>3) Chromosome length</p>
-<form action="chromosome" method="get">
-    Select the species: <input type="text" name="msg">
+<form action="chromosomeLength" method="get">
+    Select the species: <input type="text" name="specie">
     <br><br>
-    Select a chromosome: <input type="text" name="msg">
+    Select a chromosome: <input type="text" name="chromosome">
+    <br><br>
+    <input type="submit" value="Send"/>
+</form>
+<hr>
+<p>4) Human gene sequence</p>
+<form action="geneSeq" method="get">
+    Select the gene: <input type="text" name="gene">
+    <br><br>
+    <input type="submit" value="Send"/>
+</form>
+<hr>
+<p>5) Human gene info</p>
+<form action="geneInfo" method="get">
+    Select the gene: <input type="text" name="gene">
+    <br><br>
+    <input type="submit" value="Send"/>
+</form>
+<hr>
+<p>6) Human gene stats</p>
+<form action="geneCalc" method="get">
+    Select the gene: <input type="text" name="gene">
+    <br><br>
+    <input type="submit" value="Send"/>
+</form>
+<hr>
+<p>7) Genes in human chromosome</p>
+<form action="geneList" method="get">
+    Select the chromosome: <input type="text" name="chromo">
+    <br><br>
+    Start: <input type="text" name="start">
+    <br><br>
+    End: <input type="text" name="end">
     <br><br>
     <input type="submit" value="Send"/>
 </form>

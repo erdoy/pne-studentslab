@@ -24,7 +24,7 @@ class Seq:
 
 def print_seqs(seq_list, color):
     for i in range(len(seq_list)):
-        cprint("Sequence " + str(i) + ": (Length " + str(seq_list[i].len()) + ") " + str(seq_list[i]), color, force_color=True)
+        cprint("Sequence " + str(i) + ": (Length " + str(seq_list[i].len()) + ") " + str(seq_list[i]), color)
 
 
 def generate_seqs(pattern, n):
@@ -40,9 +40,9 @@ seq_list1 = generate_seqs("A", 3)
 seq_list2 = generate_seqs("AC", 5)
 
 print()
-cprint("List 1:", "blue", force_color=True)
+cprint("List 1:", "blue")
 print_seqs(seq_list1, "blue")
 
 print()
-cprint("List 2:", "green", force_color=True)
+cprint("List 2:", "green")
 print_seqs(seq_list2, "green")

@@ -100,3 +100,13 @@ def print_seqs(seq_list, n=None):
     else:
         for i in range(len(seq_list)):
             print("Sequence " + str(i) + ": (Length " + str(seq_list[i].len()) + ") " + str(seq_list[i]))
+
+
+def stats(seq):
+    response = ""
+
+    count = seq.count()
+    for i in count:
+        response += f"{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)\n"
+
+    return response

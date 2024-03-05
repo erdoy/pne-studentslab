@@ -1,7 +1,7 @@
 import http.server
 import socketserver
 from pprint import pprint
-
+from Seq1 import *
 import termcolor
 import http.client
 import json
@@ -30,7 +30,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         list_resource = self.path.split('?')
         resource = list_resource[0]
 
-        print("Resource: ", resource)
         print("List Resource: ", list_resource)
 
         if resource == "/" or resource == "/index" or resource == "/index.html":
@@ -88,7 +87,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         elif resource == "/karyotype":
 
             ENDPOINT = '/info/assembly/'
-            msg = list_resource[1].replace("msg=", "")
+            msg = list_resource[1].replace("specie=", "")
 
             conn = http.client.HTTPConnection(SERVER)
 
@@ -113,10 +112,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             content_type = 'text/html'
             error_code = 200
 
-        elif resource == "/chromosome":
+        elif resource == "/chromosomeLength":
 
             ENDPOINT = '/info/assembly/'
-            msgs = [i.replace("msg=", "") for i in list_resource[1].split("&")]
+            msgs = [i.replace("specie=", "").replace("chromosome=", "") for i in list_resource[1].split("&")]
             print(msgs)
 
             conn = http.client.HTTPConnection(SERVER)
@@ -137,9 +136,134 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if i["name"].lower() == msgs[1].lower():
                     length = i["length"]
 
-            contents = Path('html/chromosome.html').read_text().format(length)
+            contents = Path('html/chromosomeLength.html').read_text().format(length)
             content_type = 'text/html'
             error_code = 200
+
+        elif resource == "/geneSeq":
+
+            ENDPOINT = '/sequence/id/'
+            gene = list_resource[1].replace("gene=", "")
+            gene = gene.upper()
+            print(gene)
+
+            id = get_id("human", gene)
+            print(id)
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + id + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+            response = json.loads(r1.read().decode("utf-8"))
+
+            contents = Path('html/geneSeq.html').read_text().format(gene, response["seq"])
+            content_type = 'text/html'
+            error_code = 200
+
+        elif resource == "/geneInfo":
+
+            ENDPOINT = "/lookup/symbol/"
+            gene = list_resource[1].replace("gene=", "")
+            gene = gene.upper()
+            print(gene)
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + "human/" + gene + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+            response = json.loads(r1.read().decode("utf-8"))
+
+            pprint(response)
+
+            contents = Path('html/geneInfo.html').read_text().format(gene,
+                                                                     response["start"],
+                                                                     response["end"],
+                                                                     response["end"] - response["start"],
+                                                                     response["id"],
+                                                                     response["assembly_name"])
+            content_type = 'text/html'
+            error_code = 200
+
+        elif resource == "/geneCalc":
+
+            ENDPOINT = "/sequence/id/"
+            gene = list_resource[1].replace("gene=", "")
+            gene = gene.upper()
+            print(gene)
+
+            id = get_id("human", gene)
+            print(id)
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + id + PARAMS)
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+            response = json.loads(r1.read().decode("utf-8"))
+
+            s = Seq(response["seq"])
+            pprint(str(s))
+
+            response = ""
+            count = s.count()
+            for i in count:
+                response += f"<li>{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)"
+
+            contents = Path('html/geneCalc.html').read_text().format(gene,
+                                                                     s.len(),
+                                                                     response)
+            content_type = 'text/html'
+            error_code = 200
+
+        elif resource == "/geneList":
+
+            ENDPOINT = "info/genomes/taxonomy/human"
+            msgs = [i.replace("start=", "").replace("chromo=", "").replace("end", "") for i in
+                    list_resource[1].split("&")]
+
+            conn = http.client.HTTPConnection(SERVER)
+
+            try:
+                conn.request("GET", ENDPOINT + PARAMS + ";expand=1")
+            except ConnectionRefusedError:
+                print("ERROR! Cannot connect to the Server")
+                exit()
+
+            r1 = conn.getresponse()
+            print(f"Response received!: {r1.status} {r1.reason}\n")
+            response = json.loads(r1.read().decode("utf-8"))
+            pprint(response)
+
+            s = Seq(response["seq"])
+            pprint(str(s))
+
+            # response = ""
+            # count = s.count()
+            # for i in count:
+            #     response += f"<li>{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)"
+            #
+            # contents = Path('html/geneCalc.html').read_text().format(gene,
+            #                                                          s.len(),
+            #                                                          response)
+            # content_type = 'text/html'
+            # error_code = 200
 
         else:
             contents = Path('html/error.html').read_text()
@@ -160,6 +284,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(str.encode(contents))
 
         return
+
+
+def get_id(species, gene):
+    ENDPOINT = '/lookup/symbol/'
+    conn = http.client.HTTPConnection(SERVER)
+
+    try:
+        conn.request("GET", ENDPOINT + species + "/" + gene.upper() + PARAMS)
+    except ConnectionRefusedError:
+        print("ERROR! Cannot connect to the Server")
+        exit()
+
+    r1 = conn.getresponse()
+    response = json.loads(r1.read().decode("utf-8"))
+
+    return response["id"]
 
 
 # ------------------------
