@@ -130,6 +130,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             print(f"Response received!: {r1.status} {r1.reason}\n")
             response = json.loads(r1.read().decode("utf-8"))
 
+            pprint(response)
+
             length = None
 
             for i in response["top_level_region"]:
@@ -235,13 +237,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         elif resource == "/geneList":
 
             ENDPOINT = "info/genomes/taxonomy/human"
-            msgs = [i.replace("start=", "").replace("chromo=", "").replace("end", "") for i in
+            ENDPOINT = "/info/assembly/homo_sapiens/X"
+            # ENDPOINT = "info/genomes/assembly/GCA_902167145.1"
+            # ENDPOINT = "/lookup/symbol/homo_sapiens"
+            msgs = [i.replace("start=", "").replace("chromo=", "").replace("end=", "") for i in
                     list_resource[1].split("&")]
 
             conn = http.client.HTTPConnection(SERVER)
 
             try:
-                conn.request("GET", ENDPOINT + PARAMS + ";expand=1")
+                conn.request("GET", ENDPOINT + PARAMS + ";bands=1")
             except ConnectionRefusedError:
                 print("ERROR! Cannot connect to the Server")
                 exit()
@@ -251,19 +256,27 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             response = json.loads(r1.read().decode("utf-8"))
             pprint(response)
 
-            s = Seq(response["seq"])
-            pprint(str(s))
+            ids = []
+            for i in response["karyotype_band"]:
+                if i["end"] > int(msgs[2]):
+                    break
+                if i["start"] > int(msgs[1]):
+                    ids.append(i["id"])
+
+            pprint(ids)
+
+            # s = Seq(response["seq"])
+            # pprint(str(s))
 
             # response = ""
             # count = s.count()
             # for i in count:
             #     response += f"<li>{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)"
             #
-            # contents = Path('html/geneCalc.html').read_text().format(gene,
-            #                                                          s.len(),
-            #                                                          response)
-            # content_type = 'text/html'
-            # error_code = 200
+            contents = Path('html/geneList.html').read_text().format(msgs[0],
+                                                                     "0")
+            content_type = 'text/html'
+            error_code = 200
 
         else:
             contents = Path('html/error.html').read_text()
