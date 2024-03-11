@@ -237,6 +237,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         elif resource == "/geneList":
 
             ENDPOINT = "/sequence/region/human/"
+            # "human:chromosome:GRCh38:12:1000000:1000100:1"
+            # ENDPOINT = "/lookup/id/homo_sapiens:chromosome:GRCh38:12:1000000:1000100:1"
             # ENDPOINT = "/info/assembly/homo_sapiens/X"
             # ENDPOINT = "info/genomes/assembly/GCA_902167145.1"
             # ENDPOINT = "/lookup/symbol/homo_sapiens"
@@ -246,9 +248,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             conn = http.client.HTTPConnection(SERVER)
 
             try:
-                region = f"{msgs[0]}:{msgs[1]}..{msgs[2]}"
+                region = f"{msgs[0]}:{msgs[1]}..{msgs[2]}:1"
                 print(ENDPOINT + region + "?content-type=text/plain")
-                conn.request("GET", ENDPOINT + region + "?content-type=text/plain")
+                conn.request("GET", ENDPOINT + region + PARAMS)
             except ConnectionRefusedError:
                 print("ERROR! Cannot connect to the Server")
                 exit()
