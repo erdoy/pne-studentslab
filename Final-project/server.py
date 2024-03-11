@@ -236,8 +236,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif resource == "/geneList":
 
-            ENDPOINT = "info/genomes/taxonomy/human"
-            ENDPOINT = "/info/assembly/homo_sapiens/X"
+            ENDPOINT = "/sequence/region/human/"
+            # ENDPOINT = "/info/assembly/homo_sapiens/X"
             # ENDPOINT = "info/genomes/assembly/GCA_902167145.1"
             # ENDPOINT = "/lookup/symbol/homo_sapiens"
             msgs = [i.replace("start=", "").replace("chromo=", "").replace("end=", "") for i in
@@ -246,7 +246,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             conn = http.client.HTTPConnection(SERVER)
 
             try:
-                conn.request("GET", ENDPOINT + PARAMS + ";bands=1")
+                region = f"{msgs[0]}:{msgs[1]}..{msgs[2]}"
+                print(ENDPOINT + region + "?content-type=text/plain")
+                conn.request("GET", ENDPOINT + region + "?content-type=text/plain")
             except ConnectionRefusedError:
                 print("ERROR! Cannot connect to the Server")
                 exit()
@@ -256,14 +258,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             response = json.loads(r1.read().decode("utf-8"))
             pprint(response)
 
-            ids = []
-            for i in response["karyotype_band"]:
-                if i["end"] > int(msgs[2]):
-                    break
-                if i["start"] > int(msgs[1]):
-                    ids.append(i["id"])
-
-            pprint(ids)
+            # ids = []
+            # for i in response["karyotype_band"]:
+            #     if i["end"] > int(msgs[2]):
+            #         break
+            #     if i["start"] > int(msgs[1]):
+            #         ids.append(i["id"])
+            #
+            # pprint(ids)
 
             # s = Seq(response["seq"])
             # pprint(str(s))
