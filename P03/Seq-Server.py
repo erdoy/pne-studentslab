@@ -27,7 +27,6 @@ while True:
 
     except KeyboardInterrupt:
         ls.close()
-
         exit()
 
     else:
@@ -36,14 +35,14 @@ while True:
         msg = msg_raw.decode()
 
         if msg == "PING":
-            cprint("PING command!", "green", force_color=True)
-            response = "OK!\n"
+            cprint("PING command!", "green")
+            response = "OK!"
 
             cs.send(response.encode())
             print(response)
 
         elif msg.startswith("GET "):
-            cprint("GET", "green", force_color=True)
+            cprint("GET", "green")
             response = "Invalid order after 'GET '\n"
 
             if msg[4:].isdigit():

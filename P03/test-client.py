@@ -9,13 +9,14 @@ c = Client(IP, PORT)
 print(c)
 
 print("* Testing PING...")
-c.ping()
+print(c.talk("PING"))
 
 print()
 
 print("* Testing GET...")
 for i in range(5):
     msg = f"GET {i}"
+    c.talk("hi")
     print(msg + ": " + c.talk(msg).replace("\n", ""))
 
 print()

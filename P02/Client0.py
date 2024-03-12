@@ -3,13 +3,12 @@ from termcolor import cprint
 
 
 class Client:
-    def __init__(self, IP, Port: int):
-        self.ip = IP
-        self.port = Port
+    def __init__(self, ip, port: int):
+        self.ip = ip
+        self.port = port
 
-
-
-    def ping(self):
+    @staticmethod
+    def ping():
         print("OK")
 
     def __str__(self):

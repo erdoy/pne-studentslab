@@ -194,7 +194,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                                                                      response["end"],
                                                                      response["end"] - response["start"],
                                                                      response["id"],
-                                                                     response["assembly_name"])
+                                                                     response["display_name"])
             content_type = 'text/html'
             error_code = 200
 
@@ -236,9 +236,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif resource == "/geneList":
 
-            ENDPOINT = "/sequence/region/human/"
+            # ENDPOINT = "/sequence/region/human/"
             # "human:chromosome:GRCh38:12:1000000:1000100:1"
-            # ENDPOINT = "/lookup/id/homo_sapiens:chromosome:GRCh38:12:1000000:1000100:1"
+            ENDPOINT = "/lookup/id/GRCh38/X:1000000..1000100:1"
+            ENDPOINT = "/overlap/region/human/GRCh38/X:1000000-1000100"
+            ENDPOINT = "/overlap/id/"
             # ENDPOINT = "/info/assembly/homo_sapiens/X"
             # ENDPOINT = "info/genomes/assembly/GCA_902167145.1"
             # ENDPOINT = "/lookup/symbol/homo_sapiens"
@@ -250,7 +252,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             try:
                 region = f"{msgs[0]}:{msgs[1]}..{msgs[2]}:1"
                 print(ENDPOINT + region + "?content-type=text/plain")
-                conn.request("GET", ENDPOINT + region + PARAMS)
+                conn.request("GET", ENDPOINT + "GRCh38:1:X:1:156040895:1?feature=gene;content-type=application/json")
             except ConnectionRefusedError:
                 print("ERROR! Cannot connect to the Server")
                 exit()
