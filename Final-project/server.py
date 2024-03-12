@@ -1,5 +1,6 @@
 import http.server
 import socketserver
+from termcolor import cprint
 from pprint import pprint
 from Seq1 import *
 import termcolor
@@ -236,23 +237,15 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif resource == "/geneList":
 
-            # ENDPOINT = "/sequence/region/human/"
-            # "human:chromosome:GRCh38:12:1000000:1000100:1"
-            ENDPOINT = "/lookup/id/GRCh38/X:1000000..1000100:1"
-            ENDPOINT = "/overlap/region/human/GRCh38/X:1000000-1000100"
-            ENDPOINT = "/overlap/id/"
-            # ENDPOINT = "/info/assembly/homo_sapiens/X"
-            # ENDPOINT = "info/genomes/assembly/GCA_902167145.1"
-            # ENDPOINT = "/lookup/symbol/homo_sapiens"
+            ENDPOINT = "/overlap/region/human/"
             msgs = [i.replace("start=", "").replace("chromo=", "").replace("end=", "") for i in
                     list_resource[1].split("&")]
 
             conn = http.client.HTTPConnection(SERVER)
 
             try:
-                region = f"{msgs[0]}:{msgs[1]}..{msgs[2]}:1"
-                print(ENDPOINT + region + "?content-type=text/plain")
-                conn.request("GET", ENDPOINT + "GRCh38:1:X:1:156040895:1?feature=gene;content-type=application/json")
+                region = f"{msgs[0]}:{msgs[1]}-{msgs[2]}"
+                conn.request("GET", ENDPOINT + region + PARAMS + ";feature=gene")
             except ConnectionRefusedError:
                 print("ERROR! Cannot connect to the Server")
                 exit()
@@ -262,25 +255,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             response = json.loads(r1.read().decode("utf-8"))
             pprint(response)
 
-            # ids = []
-            # for i in response["karyotype_band"]:
-            #     if i["end"] > int(msgs[2]):
-            #         break
-            #     if i["start"] > int(msgs[1]):
-            #         ids.append(i["id"])
-            #
-            # pprint(ids)
+            genes = ""
 
-            # s = Seq(response["seq"])
-            # pprint(str(s))
+            for i in response:
+                if "external_name" in i:
+                    genes += f"<li> {i['external_name']}"
 
-            # response = ""
-            # count = s.count()
-            # for i in count:
-            #     response += f"<li>{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)"
-            #
             contents = Path('html/geneList.html').read_text().format(msgs[0],
-                                                                     "0")
+                                                                     msgs[1],
+                                                                     msgs[2],
+                                                                     genes)
             content_type = 'text/html'
             error_code = 200
 
