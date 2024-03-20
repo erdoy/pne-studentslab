@@ -30,8 +30,20 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # -- NOTE: self.path already contains the requested resource
         list_resource = self.path.split('?')
         resource = list_resource[0]
+        if len(list_resource) == 1:
+            params = {"json": 0}
+        else:
+            params = dict([tuple(i.split("=")) for i in list_resource[1].split('&')])
 
-        print("List Resource: ", list_resource)
+            if "json" not in params:
+                params["json"] = 0
+            else:
+                params["json"] = int(params["json"])
+
+        print("Resource:", resource)
+        print("Parameters:", params)
+
+        is_json = False
 
         if resource == "/" or resource == "/index" or resource == "/index.html":
             contents = Path('html/index.html').read_text()
@@ -41,10 +53,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             ENDPOINT = '/info/species'
 
-            if len(list_resource) >= 2:
-                msg = list_resource[1].strip("limit=")
-            else:
-                msg = ""
+            msg = params["limit"]
 
             conn = http.client.HTTPConnection(SERVER)
 
@@ -56,39 +65,43 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
+            # response = json.loads(r1.read().decode("utf-8"))
 
             # pprint(response["species"])
 
-            lim_species = len(response["species"])
-            print("Msg: " + msg)
+            # lim_species = len(response["species"])
+            #
+            # if msg == "":
+            #     msg = str(lim_species)
+            #
+            # if msg.isdigit():
+            #     lim = int(msg)
+            #     if lim > lim_species:
+            #         lim = lim_species
+            #
+            #     species = ""
+            #
+            #     for i in response["species"][:lim]:
+            #         species += f"<li>{i['display_name']}</li>"
 
-            if msg == "":
-                msg = str(lim_species)
-
-            if msg.isdigit():
-                lim = int(msg)
-                if lim > lim_species:
-                    lim = lim_species
-
-                species = ""
-
-                for i in response["species"][:lim]:
-                    species += f"<li>{i['display_name']}</li>"
-
+            if not params["json"]:
                 contents = Path('html/list.html').read_text().format(lim_species, lim, species)
                 content_type = 'text/html'
                 error_code = 200
-
             else:
-                contents = Path('html/error.html').read_text()
-                content_type = 'text/html'
-                error_code = 404
+                contents = json.load(r1.read().decode("utf-8"))
+                content_type = 'application / json'
+                error_code = 200
+
+            # else:
+            #     contents = Path('html/error.html').read_text()
+            #     content_type = 'text/html'
+            #     error_code = 404
 
         elif resource == "/karyotype":
 
             ENDPOINT = '/info/assembly/'
-            msg = list_resource[1].replace("specie=", "")
+            msg = params["specie"]
 
             conn = http.client.HTTPConnection(SERVER)
 
@@ -102,7 +115,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             print(f"Response received!: {r1.status} {r1.reason}\n")
             response = json.loads(r1.read().decode("utf-8"))
 
-            pprint(response["karyotype"])
+            # pprint(response["karyotype"])
 
             chromosomes = ""
 
@@ -261,7 +274,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if "external_name" in i:
                     genes += f"<li> {i['external_name']}"
 
-            contents = Path('html/geneList.html').read_text().format(msgs[0],
+            contents = Path('html/geneList.html').read_text().format(msgs[0].upper(),
                                                                      msgs[1],
                                                                      msgs[2],
                                                                      genes)
