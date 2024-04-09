@@ -26,8 +26,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         termcolor.cprint(self.requestline, 'green')
 
-        # -- Parse the path
-        # -- NOTE: self.path already contains the requested resource
         list_resource = self.path.split('?')
         resource = list_resource[0]
 
@@ -48,6 +46,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             contents = Path('html/index.html').read_text()
             content_type = 'text/html'
             error_code = 200
+
         elif resource == "/listSpecies":
 
             ENDPOINT = '/info/species'
