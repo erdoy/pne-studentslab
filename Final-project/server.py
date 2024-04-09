@@ -1,5 +1,6 @@
 import http.server
 import socketserver
+import io
 from termcolor import cprint
 from pprint import pprint
 from Seq1 import *
@@ -65,32 +66,32 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            # response = json.loads(r1.read().decode("utf-8"))
+            response = json.loads(r1.read().decode("utf-8"))
 
-            # pprint(response["species"])
+            pprint(response["species"])
 
-            # lim_species = len(response["species"])
-            #
-            # if msg == "":
-            #     msg = str(lim_species)
-            #
-            # if msg.isdigit():
-            #     lim = int(msg)
-            #     if lim > lim_species:
-            #         lim = lim_species
-            #
-            #     species = ""
-            #
-            #     for i in response["species"][:lim]:
-            #         species += f"<li>{i['display_name']}</li>"
+            lim_species = len(response["species"])
+
+            if msg == "":
+                msg = str(lim_species)
+
+            if msg.isdigit():
+                lim = int(msg)
+                if lim > lim_species:
+                    lim = lim_species
+
+                species = ""
+
+                for i in response["species"][:lim]:
+                    species += f"<li>{i['display_name']}</li>"
 
             if not params["json"]:
                 contents = Path('html/list.html').read_text().format(lim_species, lim, species)
                 content_type = 'text/html'
                 error_code = 200
             else:
-                contents = json.load(r1.read().decode("utf-8"))
-                content_type = 'application / json'
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
                 error_code = 200
 
             # else:
@@ -291,13 +292,21 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         # Define the content-type header:
         self.send_header('Content-Type', content_type)
-        self.send_header('Content-Length', len(str.encode(contents)))
+        if params["json"] == 1:
+            self.send_header('Content-Length', len(json.dumps(contents).encode("utf-8")))
+        else:
+            self.send_header('Content-Length', len(str.encode(contents)))
 
         # The header is finished
         self.end_headers()
 
         # Send the response message
-        self.wfile.write(str.encode(contents))
+        if params["json"] == 1:
+            self.wfile.write(json.dumps(contents).encode("utf-8"))
+        else:
+            self.wfile.write(str.encode(contents))
+
+
 
         return
 
