@@ -1,6 +1,5 @@
 import http.server
 import socketserver
-import io
 from termcolor import cprint
 from pprint import pprint
 from Seq1 import *
@@ -31,6 +30,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # -- NOTE: self.path already contains the requested resource
         list_resource = self.path.split('?')
         resource = list_resource[0]
+
         if len(list_resource) == 1:
             params = {"json": 0}
         else:
@@ -43,8 +43,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         print("Resource:", resource)
         print("Parameters:", params)
-
-        is_json = False
 
         if resource == "/" or resource == "/index" or resource == "/index.html":
             contents = Path('html/index.html').read_text()
@@ -66,38 +64,38 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
-
-            pprint(response["species"])
-
-            lim_species = len(response["species"])
-
-            if msg == "":
-                msg = str(lim_species)
-
-            if msg.isdigit():
-                lim = int(msg)
-                if lim > lim_species:
-                    lim = lim_species
-
-                species = ""
-
-                for i in response["species"][:lim]:
-                    species += f"<li>{i['display_name']}</li>"
 
             if not params["json"]:
-                contents = Path('html/list.html').read_text().format(lim_species, lim, species)
-                content_type = 'text/html'
-                error_code = 200
+                response = json.loads(r1.read().decode("utf-8"))
+
+                pprint(response["species"])
+
+                lim_species = len(response["species"])
+
+                if msg == "":
+                    msg = str(lim_species)
+
+                if msg.isdigit():
+                    lim = int(msg)
+                    if lim > lim_species:
+                        lim = lim_species
+
+                    species = ""
+
+                    for i in response["species"][:lim]:
+                        species += f"<li>{i['display_name']}</li>"
+
+                    contents = Path('html/list.html').read_text().format(lim_species, lim, species)
+                    content_type = 'text/html'
+                    error_code = 200
+                else:
+                    contents = Path('html/error.html').read_text()
+                    content_type = 'text/html'
+                    error_code = 404
             else:
                 contents = json.loads(r1.read().decode("utf-8"))
                 content_type = 'application/json'
                 error_code = 200
-
-            # else:
-            #     contents = Path('html/error.html').read_text()
-            #     content_type = 'text/html'
-            #     error_code = 404
 
         elif resource == "/karyotype":
 
@@ -114,18 +112,23 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
 
-            # pprint(response["karyotype"])
+            if not params["json"]:
 
-            chromosomes = ""
+                response = json.loads(r1.read().decode("utf-8"))
 
-            for i in response["karyotype"]:
-                chromosomes += f"<li>{i}</li>"
+                chromosomes = ""
 
-            contents = Path('html/karyotype.html').read_text().format(chromosomes)
-            content_type = 'text/html'
-            error_code = 200
+                for i in response["karyotype"]:
+                    chromosomes += f"<li>{i}</li>"
+
+                contents = Path('html/karyotype.html').read_text().format(chromosomes)
+                content_type = 'text/html'
+                error_code = 200
+            else:
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
+                error_code = 200
 
         elif resource == "/chromosomeLength":
 
@@ -143,25 +146,31 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
 
-            pprint(response)
+            if not params["json"]:
+                response = json.loads(r1.read().decode("utf-8"))
 
-            length = None
+                pprint(response)
 
-            for i in response["top_level_region"]:
-                if i["name"].lower() == msgs[1].lower():
-                    length = i["length"]
+                length = None
 
-            contents = Path('html/chromosomeLength.html').read_text().format(length)
-            content_type = 'text/html'
-            error_code = 200
+                for i in response["top_level_region"]:
+                    if i["name"].lower() == msgs[1].lower():
+                        length = i["length"]
+
+                contents = Path('html/chromosomeLength.html').read_text().format(length)
+                content_type = 'text/html'
+                error_code = 200
+
+            else:
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
+                error_code = 200
 
         elif resource == "/geneSeq":
 
             ENDPOINT = '/sequence/id/'
-            gene = list_resource[1].replace("gene=", "")
-            gene = gene.upper()
+            gene = params["gene"].upper()
             print(gene)
 
             id = get_id("human", gene)
@@ -177,17 +186,23 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
 
-            contents = Path('html/geneSeq.html').read_text().format(gene, response["seq"])
-            content_type = 'text/html'
-            error_code = 200
+            if not params["json"]:
+                response = json.loads(r1.read().decode("utf-8"))
+
+                contents = Path('html/geneSeq.html').read_text().format(gene, response["seq"])
+                content_type = 'text/html'
+                error_code = 200
+
+            else:
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
+                error_code = 200
 
         elif resource == "/geneInfo":
 
             ENDPOINT = "/lookup/symbol/"
-            gene = list_resource[1].replace("gene=", "")
-            gene = gene.upper()
+            gene = params["gene"].upper()
             print(gene)
 
             conn = http.client.HTTPConnection(SERVER)
@@ -200,24 +215,30 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
 
-            pprint(response)
+            if not params["json"]:
+                response = json.loads(r1.read().decode("utf-8"))
 
-            contents = Path('html/geneInfo.html').read_text().format(gene,
-                                                                     response["start"],
-                                                                     response["end"],
-                                                                     response["end"] - response["start"],
-                                                                     response["id"],
-                                                                     response["display_name"])
-            content_type = 'text/html'
-            error_code = 200
+                pprint(response)
+
+                contents = Path('html/geneInfo.html').read_text().format(gene,
+                                                                         response["start"],
+                                                                         response["end"],
+                                                                         response["end"] - response["start"],
+                                                                         response["id"],
+                                                                         response["display_name"])
+                content_type = 'text/html'
+                error_code = 200
+
+            else:
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
+                error_code = 200
 
         elif resource == "/geneCalc":
 
             ENDPOINT = "/sequence/id/"
-            gene = list_resource[1].replace("gene=", "")
-            gene = gene.upper()
+            gene = params["gene"].upper()
             print(gene)
 
             id = get_id("human", gene)
@@ -233,21 +254,28 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
 
-            s = Seq(response["seq"])
-            pprint(str(s))
+            if not params["json"]:
+                response = json.loads(r1.read().decode("utf-8"))
 
-            response = ""
-            count = s.count()
-            for i in count:
-                response += f"<li>{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)"
+                s = Seq(response["seq"])
+                pprint(str(s))
 
-            contents = Path('html/geneCalc.html').read_text().format(gene,
+                response = ""
+                count = s.count()
+                for i in count:
+                    response += f"<li>{i}: {count[i]} ({round(count[i] / sum(count.values()) * 100, 1)}%)"
+
+                contents = Path('html/geneCalc.html').read_text().format(gene,
                                                                      s.len(),
                                                                      response)
-            content_type = 'text/html'
-            error_code = 200
+                content_type = 'text/html'
+                error_code = 200
+
+            else:
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
+                error_code = 200
 
         elif resource == "/geneList":
 
@@ -266,21 +294,28 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             r1 = conn.getresponse()
             print(f"Response received!: {r1.status} {r1.reason}\n")
-            response = json.loads(r1.read().decode("utf-8"))
-            pprint(response)
 
-            genes = ""
+            if not params["json"]:
+                response = json.loads(r1.read().decode("utf-8"))
+                pprint(response)
 
-            for i in response:
-                if "external_name" in i:
-                    genes += f"<li> {i['external_name']}"
+                genes = ""
 
-            contents = Path('html/geneList.html').read_text().format(msgs[0].upper(),
-                                                                     msgs[1],
-                                                                     msgs[2],
-                                                                     genes)
-            content_type = 'text/html'
-            error_code = 200
+                for i in response:
+                    if "external_name" in i:
+                        genes += f"<li> {i['external_name']}"
+
+                contents = Path('html/geneList.html').read_text().format(msgs[0].upper(),
+                                                                         msgs[1],
+                                                                         msgs[2],
+                                                                         genes)
+                content_type = 'text/html'
+                error_code = 200
+
+            else:
+                contents = json.loads(r1.read().decode("utf-8"))
+                content_type = 'application/json'
+                error_code = 200
 
         else:
             contents = Path('html/error.html').read_text()
@@ -305,8 +340,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(contents).encode("utf-8"))
         else:
             self.wfile.write(str.encode(contents))
-
-
 
         return
 
