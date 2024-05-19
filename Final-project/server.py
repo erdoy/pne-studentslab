@@ -92,14 +92,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     content_type = 'text/html'
                     error_code = 404
             else:
-                contents = json.loads(r1.read().decode("utf-8"))
+
+                if "limit" in params:
+                    contents = json.loads(r1.read().decode("utf-8"))["species"][:int(params["limit"])]
+                else:
+                    contents = json.loads(r1.read().decode("utf-8"))["species"]
                 content_type = 'application/json'
                 error_code = 200
 
         elif resource == "/karyotype":
 
             ENDPOINT = '/info/assembly/'
-            msg = params["specie"]
+            msg = params["species"]
 
             conn = http.client.HTTPConnection(SERVER)
 
